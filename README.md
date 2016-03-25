@@ -11,7 +11,7 @@ My idea is to make another script for this which allows you to have a LA(M)P-Ser
 ## Requirements
 * PHP (>= 5.3.0) with PHP-Cli installed
 * Linux system (Windows and maybe MacOS X coming)
-* installation of VLC Media Player
+* Installation of VLC Media Player
 
 ## Usage
 
@@ -31,7 +31,7 @@ Note: If the file **lib.php** does not exist, it will be generated automatically
 ### Starting the player in automatic mode
 Now, to start the player in auto mode simply execute 
 ```bash
-autostart.sh
+./autostart.sh
 ```
 or use
 ```bash
