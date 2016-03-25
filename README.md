@@ -15,6 +15,9 @@ My idea is to make another script for this which allows you to have a LA(M)P-Ser
 
 ## Usage
 
+### Adding Files
+Put your audio-files inside the media folder
+
 ### Update your library
 Firstly you have to update your library, therefor simply execute
 
@@ -57,7 +60,7 @@ To play **multiple** random song enter
 ```bash
 php player.php random
 ```
-## Configuration
+## Advanced Configuration
 In the file player.php is a array called $config. There you cann change specific file paths, for example when your playlist is on a webserver.
 
 ## Bugs
