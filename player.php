@@ -4,6 +4,7 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE);
 $config = array(
 	"source" => "media/",
 	"libFile" => "lib.php",
+	"tagFile" => "tags.txt",
 	"playlist" => "playlist.txt",
 );
 
@@ -95,17 +96,17 @@ function buildlibrary() {
 	file_put_contents($config['libFile'],');', FILE_APPEND);
 }
 
-function genDatabase() {
+function genTagdata() {
 	global $config, $library;
-	file_put_contents('tags.txt',"");
+	file_put_contents($config['tagFile'],"");
 	foreach ($library as &$value) {
 		$tags = readTags($value);
 		if($tags['tags']['id3v2']['artist'][0] != NULL) {
-			file_put_contents('tags.txt',$tags['tags']['id3v2']['artist'][0].' - '.$tags['tags']['id3v2']['title'][0]."\n", FILE_APPEND);
+			file_put_contents($config['tagFile'],$tags['tags']['id3v2']['artist'][0].' - '.$tags['tags']['id3v2']['title'][0]."\n", FILE_APPEND);
 			echo("\033[32mUpdated Metadata for \033[34m".$tags['tags']['id3v2']['artist'][0].' - '.$tags['tags']['id3v2']['title'][0]."\033[0m\n");
 		} else {
 			$info = pathinfo($value);
-			file_put_contents('tags.txt',basename($value,'.'.$info['extension'])."\n", FILE_APPEND);
+			file_put_contents($config['tagFile'],basename($value,'.'.$info['extension'])."\n", FILE_APPEND);
 			echo("\033[31mUnable to read ID3-Tags for \033[34m".$value."\033[0m\n");
 		}
 	}
@@ -114,7 +115,7 @@ function genDatabase() {
 
 function autonomous() {
 	global $config;
-	if(file_exists($config['playlist'])) {
+	if(@fopen($config['playlist'], "r")) {
 		while (true) {
 			$lines = file($config['playlist']);
 			if ($lines[0] != NULL) {
@@ -122,7 +123,11 @@ function autonomous() {
 				echo("\033[33mPlaying song from playlist, ".(getLines($config['playlist'])-1)." remaining \033[0m\n");
 				playFile($lines[0]);
 				unset($lines);
-				read_and_delete_first_line($config['playlist']);
+				if (parse_url($config['playlist'], PHP_URL_SCHEME)) {
+   				 // handler for remote playlist
+				}	else {
+					read_and_delete_first_line($config['playlist']);
+				}
 			} else {
 				echo("\033[33mPlaylist is empty, playing random song \033[0m\n");
 				playRandomFile();
@@ -130,6 +135,10 @@ function autonomous() {
 		}
 	} else {
 		echo("\033[31mPlaylist file does not exist, pleae create \033[34m".$config['playlist']."\033[0m\n");
+		echo("\033[31mFalling back to random mode!\033[0m\n");
+		while(true) {
+						playRandomFile();
+					}
 	}
 }
 
@@ -137,6 +146,9 @@ if (isset($argv[1])) {
 	switch($argv[1]) {
 		case 'scan':
 			buildlibrary();
+			break;
+		case 'tags':
+			genTagdata();
 			break;
 		case 'play':
 			switch($argv[2]) {
@@ -156,10 +168,9 @@ if (isset($argv[1])) {
 		case 'auto':
 			autonomous();
 			break;
-		case NULL:
-			break;
 		default:
-			break;		
+			echo("\033[33mArguments could not be parsed, starting automatic mode \033[0m\n");
+			autonomous();	
 	}
 
 } else {
